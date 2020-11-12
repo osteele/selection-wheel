@@ -1,0 +1,13 @@
+body {
+  margin: 0;
+}
+
+#input-lines {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+}
+
+body.shuffling button, body.shuffling #input-lines {
+  display: none;
+}
