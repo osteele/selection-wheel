@@ -10,7 +10,12 @@
 </head>
 
 <body>
-    <textarea id="input-lines" rows="15" cols="60" name="text"
+    <div id="instructions">
+        <div class="initial"></div>
+        <div class="in-progress">Click to select the next name.</div>
+        <div class="done">Click to enter a new list of names.</div>
+    </div>
+    <textarea id="input-lines" class="unless-canvas" rows="15" cols="60" name="text"
      placeholder="Enter names to be shuffled, one per line. Leave this area empty in order to use a default set of generated names."></textarea>
 </body>
 

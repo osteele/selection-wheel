@@ -1,13 +1,20 @@
-body {
-  margin: 0;
-}
-
-#input-lines {
-  position: absolute;
-  left: 10px;
-  top: 10px;
-}
-
-body.shuffling button, body.shuffling #input-lines {
+body.canvas .unless-canvas {
   display: none;
+}
+
+#instructions div,
+canvas {
+  display: none;
+}
+
+body.canvas canvas {
+  display: block;
+}
+
+body.selecting #instructions .in-progress {
+  display: block;
+}
+
+body.done #instructions .done {
+  display: block;
 }

@@ -3,26 +3,25 @@ let spinnerAngle = 0;
 let targetIndex = -1;
 let targetAngle = 0;
 let angles;
-let struck = [];
+let struck;
+let spinning = false;
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
-  // this next line is necessary for hot reload during development
-  document.body.className = document.body.className.replace(/\bshuffled\b/, '');
+  let header = document.getElementById('instructions');
+  createCanvas(windowWidth, windowHeight - header.offsetTop - header.offsetHeight);
+  // the following supports hot reload during development
+  document.body.className = '';
 
   let textArea = document.getElementById('input-lines');
   createButton('Shuffle')
+    .class('unless-canvas')
     .position(textArea.offsetLeft, textArea.offsetTop + textArea.offsetHeight + 10)
     .mousePressed(() => startShuffle(
       textArea.value.trim()
         ? textArea.split('\n')
         : Array(5).fill().map((_, i) => `Team #${i + 1}`)));
   noLoop();
-
-  // startShuffle(defaultLines.split(/\n/));
 }
-
-let stopped = true;
 
 function draw() {
   clear();
@@ -33,13 +32,13 @@ function draw() {
   let radius = 0.9 * min(width, height) / 2 - max(labels.map(s => textWidth(s)));
 
   if (abs(spinnerAngle - targetAngle) < 0.01) {
-    stopped = true;
+    spinning = false;
     noLoop();
   }
 
   push();
   rotate(spinnerAngle + HALF_PI);
-  spinnerAngle = lerp(spinnerAngle, targetAngle, 0.1);
+  spinnerAngle += min(PI / 10, 0.1 * (targetAngle - spinnerAngle));
   fill('red');
   triangle(-20, 0, 0, -radius + 5, 20, 0);
   pop();
@@ -56,7 +55,7 @@ function draw() {
 
     push();
     if (x < 0) rotate(PI);
-    if (stopped && targetIndex == i) fill('blue')
+    if (!spinning && targetIndex == i) fill('blue')
     text(label, 0, 0);
     pop();
 
@@ -69,24 +68,25 @@ function draw() {
 }
 
 function startShuffle(lines) {
-  document.body.className += ' shuffling';
+  document.body.className = 'canvas selecting';
   labels = lines.map(s => s.trim()).filter(s => s);
+  struck = labels.map(() => false);
   angles = labels.map((_, i) => TWO_PI * i / labels.length);
-  angles = shuffle(angles);
-  stopped = true;
+  shuffle(angles, true);
+  targetIndex = -1;
+  spinning = false;
 }
 
 function mousePressed() {
-  if (!stopped) return;
+  if (spinning) return;
   if (labels.length === 0) return;
-  struck[targetIndex] = true;
-  let remaining;
-  do {
-    remaining = labels.map((_, i) => struck[i] ? null : i).filter(i => i !== null);
-    if (remaining.length === 0) struck = [];
-  } while (remaining.length === 0);
+  if (targetIndex >= 0) struck[targetIndex] = true;
+  let remaining = struck.map((x, i) => x ? null : i).filter(i => i !== null);
+  if (remaining.length === 1) document.body.className = 'canvas done';
+  if (remaining.length === 0) { document.body.className = ''; return; }
   targetIndex = random(remaining);
-  targetAngle = angles[targetIndex] + (floor(random(1, 5) + floor(spinnerAngle / TWO_PI)) * TWO_PI);
-  stopped = false;
+  spinnerAngle %= TWO_PI;
+  targetAngle = angles[targetIndex] + floor(random(1, 5)) * TWO_PI;
+  spinning = true;
   loop();
 }
