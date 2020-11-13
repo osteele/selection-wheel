@@ -36,6 +36,14 @@ function draw() {
     noLoop();
   }
 
+  fill(200);
+  circle(0, 0, width);
+  fill('white');
+  const lineHeight = textAscent() + textDescent();
+  rect(radius, -lineHeight / 2, width, lineHeight);
+
+  rotate(-spinnerAngle);
+
   push();
   rotate(spinnerAngle + HALF_PI);
   spinnerAngle += min(PI / 10, 0.1 * (targetAngle - spinnerAngle));
@@ -46,15 +54,16 @@ function draw() {
   fill('gray')
   labels.forEach((label, i) => {
     let angle = angles[i];
-    let x = radius * cos(angle), y = radius * sin(angle)
+    let x = radius * cos(angle), y = radius * sin(angle);
+    let x0 = cos(angle + -spinnerAngle);
 
     push();
-    textAlign(x < 0 ? RIGHT : LEFT, CENTER);
+    textAlign(x0 < 0 ? RIGHT : LEFT, CENTER);
     translate(x, y);
     rotate(angle);
 
     push();
-    if (x < 0) rotate(PI);
+    if (x0 < 0) rotate(PI);
     if (!spinning && targetIndex == i) fill('blue')
     text(label, 0, 0);
     pop();
