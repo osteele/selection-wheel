@@ -1,5 +1,3 @@
-const defaultLines = 'team 1\nteam 2\nteam 3\nteam 4\nteam 5\nteam 6\nteam 7';
-
 let labels = [];
 let spinnerAngle = 0;
 let targetIndex = -1;
@@ -15,7 +13,10 @@ function setup() {
   let textArea = document.getElementById('input-lines');
   createButton('Shuffle')
     .position(textArea.offsetLeft, textArea.offsetTop + textArea.offsetHeight + 10)
-    .mousePressed(() => startShuffle((textArea.value.trim() || defaultLines).split('\n')));
+    .mousePressed(() => startShuffle(
+      textArea.value.trim()
+        ? textArea.split('\n')
+        : Array(5).fill().map((_, i) => `Team #${i + 1}`)));
   noLoop();
 
   // startShuffle(defaultLines.split(/\n/));
