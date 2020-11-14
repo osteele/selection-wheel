@@ -1,4 +1,5 @@
 let labels = [];
+let selectedLabels = [];
 let spinnerAngle = 0;
 let targetIndex = -1;
 let targetAngle = 0;
@@ -30,19 +31,33 @@ function setup() {
 
 function draw() {
   clear();
+
+    // it has come to a halt
+    if (abs(spinnerAngle - targetAngle) < 0.01) {
+      spinning = false;
+      targetIndex >= 0 && selectedLabels.push(labels[targetIndex])
+      noLoop();
+      executePendingMouseClicks();
+    }
+
+
+  {
+    push();
+    textSize(20);
+    const h = textAscent() + textDescent();
+    fill('gray');
+    selectedLabels.forEach(label => {
+      text(label, 10, height - h);
+      translate(0, -h);
+    })
+    pop();
+  }
+
+
   translate(width / 2, height / 2);
 
   textSize(labelTextSize);
   const radius = 0.9 * min(width, height) / 2 - max(labels.map(s => textWidth(s)));
-
-  if (abs(spinnerAngle - targetAngle) < 0.01) {
-    spinning = false;
-    noLoop();
-    if (queuedMouseClicks > 0) {
-      queuedMouseClicks--;
-      nextSpin();
-    }
-  }
 
   const discSize = min(width, height) - 10;
   fill(200);
@@ -112,6 +127,7 @@ function startShuffle(lines) {
   shuffle(angles, true);
   struck = new Array(labels.length).fill(false);
   targetIndex = -1;
+  selectedLabels = [];
   spinning = false;
   queuedMouseClicks = 0;
 
@@ -132,9 +148,16 @@ function mousePressed() {
   }
 }
 
+function executePendingMouseClicks() {
+  if (queuedMouseClicks > 0) {
+    queuedMouseClicks--;
+    nextSpin();
+  }
+}
+
 function nextSpin() {
   if (targetIndex >= 0) struck[targetIndex] = true;
-  let remaining = struck.map((x, i) => x ? null : i).filter(i => i !== null);
+  let remaining = struck.map((f, i) => f ? null : i).filter(i => i !== null);
   switch (remaining.length) {
     case 0:
       document.body.className = '';
