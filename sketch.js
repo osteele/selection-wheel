@@ -9,7 +9,6 @@ let spinning = false;
 let labelTextSize;
 
 function setup() {
-  const header = document.getElementById('instructions');
   createCanvas(windowWidth, windowHeight);
   // the following supports hot reload during development
   document.body.className = '';
@@ -31,10 +30,9 @@ function setup() {
 
 function draw() {
   clear();
-  color('white');
-  textSize(40);
   translate(width / 2, height / 2);
 
+  textSize(labelTextSize);
   const radius = 0.9 * min(width, height) / 2 - max(labels.map(s => textWidth(s)));
 
   if (abs(spinnerAngle - targetAngle) < 0.01) {
@@ -47,10 +45,11 @@ function draw() {
   }
 
   fill(200);
-  circle(0, 0, width);
+  const discSize = min(width, height) - 10;
+  circle(0, 0, discSize);
   fill('white');
   const lineHeight = textAscent() + textDescent();
-  rect(radius, -lineHeight / 2, width, lineHeight);
+  rect(radius, -lineHeight / 2, discSize / 2, lineHeight);
 
   rotate(-spinnerAngle);
 
@@ -87,7 +86,6 @@ function draw() {
 }
 
 function startShuffle(lines) {
-  document.body.className = 'canvas selecting';
   labels = lines.map(s => s.trim()).filter(s => s);
   angles = labels.map((_, i) => TWO_PI * i / labels.length);
   shuffle(angles, true);
@@ -95,6 +93,12 @@ function startShuffle(lines) {
   targetIndex = -1;
   spinning = false;
   queuedMouseClicks = 0;
+
+  const maxRadius = min(width, height) / 2;
+  labelTextSize = 200;
+  while (textSize(labelTextSize), 100 + max(labels.map(textWidth)) > maxRadius) labelTextSize *= 0.95;
+
+  document.body.className = 'canvas selecting';
   noLoop();
 }
 
