@@ -6,6 +6,7 @@ let queuedMouseClicks;
 let angles;
 let struck;
 let spinning = false;
+let labelTextSize;
 
 function setup() {
   const header = document.getElementById('instructions');
@@ -20,7 +21,7 @@ function setup() {
     .position(textArea.offsetLeft, textArea.offsetTop + textArea.offsetHeight + 10)
     .mousePressed(() => startShuffle(
       textArea.value.trim()
-        ? textArea.split('\n')
+        ? textArea.value.split('\n')
         : testData));
 
   if (document.location.hash === '#test') {
