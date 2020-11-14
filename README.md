@@ -1,8 +1,6 @@
-# p5.js template
+# Wheel of Selection
 
-This code is a “starter kit” for using [p5.js](https://p5js.org) with a sketch
-written as a [JavaScript
-module](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules).
+Enter a list of names to shuffle them, with a spinning wheel animation.
 
 ## License
 
