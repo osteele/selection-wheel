@@ -44,12 +44,30 @@ function draw() {
     }
   }
 
-  fill(200);
   const discSize = min(width, height) - 10;
+  fill(200);
   circle(0, 0, discSize);
-  fill('white');
-  const lineHeight = textAscent() + textDescent();
-  rect(radius, -lineHeight / 2, discSize / 2, lineHeight);
+
+  push();
+  rotate(-spinnerAngle);
+  colorMode(HSB);
+  const index2angle = i => map(i, 0, 50, 0, TWO_PI);
+  for (let i = 0; i < 50; i++) {
+    const hue = (i / 3) % 3 * 100
+    strokeWeight(2);
+    fill(hue, 100, 100, 20);
+    stroke(hue, 100, 75, 50);
+    arc(0, 0, discSize, discSize, index2angle(i), index2angle(i + 1), PIE)
+  }
+  pop();
+  fill("#E5BB4A");
+  circle(0, 0, 1.7 * radius);
+
+  if (targetIndex >= 0) {
+    fill('white');
+    const lineHeight = textAscent() + textDescent();
+    rect(radius - 10, -lineHeight / 2, discSize / 2 - radius, lineHeight);
+  }
 
   rotate(-spinnerAngle);
 
@@ -73,7 +91,10 @@ function draw() {
 
     push();
     if (x0 < 0) rotate(PI);
-    if (!spinning && targetIndex == i) fill('blue')
+    if (!spinning && targetIndex == i) {
+      fill('black');
+      // textStyle(BOLD);
+    }
     text(label, 0, 0);
     pop();
 
