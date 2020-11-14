@@ -1,18 +1,24 @@
 let labels = [];
+let labelAngles = [];
 let selectedLabels = [];
+let visitedLabelIndices = [];
 let spinnerAngle = 0;
-let targetIndex = -1;
 let targetAngle = 0;
-let queuedMouseClicks;
-let angles;
-let struck;
+let targetIndex = -1;
+let queuedMouseClicks = 0;
 let spinning = false;
 let labelTextSize;
+let hues;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   // the following supports hot reload during development
   document.body.className = '';
+
+  hues = Array(100).fill().map((_, i) =>
+    // alternating primaries and complements
+    360 * (floor(random(6) & 6) | i & 1) / 6
+  )
 
   const textArea = document.getElementById('input-lines');
   const testData = Array(5).fill().map((_, i) => `Team #${i + 1}`);
@@ -32,14 +38,13 @@ function setup() {
 function draw() {
   clear();
 
-    // it has come to a halt
-    if (abs(spinnerAngle - targetAngle) < 0.01) {
-      spinning = false;
-      targetIndex >= 0 && selectedLabels.push(labels[targetIndex])
-      noLoop();
-      executePendingMouseClicks();
-    }
-
+  // text whether the spin has effectively come to a halt
+  if (abs(spinnerAngle - targetAngle) < 0.01) {
+    spinning = false;
+    targetIndex >= 0 && selectedLabels.push(labels[targetIndex])
+    noLoop();
+    executePendingMouseClicks();
+  }
 
   {
     push();
@@ -58,19 +63,17 @@ function draw() {
 
   textSize(labelTextSize);
   const radius = 0.9 * min(width, height) / 2 - max(labels.map(s => textWidth(s)));
-
   const discSize = min(width, height) - 10;
-  fill(200);
-  circle(0, 0, discSize);
 
+  // colored disc
   push();
   rotate(-spinnerAngle);
   colorMode(HSB);
   const index2angle = i => map(i, 0, 50, 0, TWO_PI);
   for (let i = 0; i < 50; i++) {
-    const hue = (i / 3) % 3 * 100
+    const hue = hues[i % hues.length];
     strokeWeight(2);
-    fill(hue, 100, 100, 20);
+    fill(hue, 60, 100, 20);
     stroke(hue, 100, 75, 50);
     arc(0, 0, discSize, discSize, index2angle(i), index2angle(i + 1), PIE)
   }
@@ -78,6 +81,7 @@ function draw() {
   fill("#E5BB4A");
   circle(0, 0, 1.7 * radius);
 
+  // see-through panel
   if (targetIndex >= 0) {
     fill('white');
     const lineHeight = textAscent() + textDescent();
@@ -86,6 +90,7 @@ function draw() {
 
   rotate(-spinnerAngle);
 
+  // pointer
   push();
   rotate(spinnerAngle + HALF_PI);
   spinnerAngle += min(PI / 10, 0.1 * (targetAngle - spinnerAngle));
@@ -93,19 +98,20 @@ function draw() {
   triangle(-20, 0, 0, -radius + 5, 20, 0);
   pop();
 
-  fill('gray')
+  // labels
+  fill(100)
   labels.forEach((label, i) => {
-    const angle = angles[i];
+    const angle = labelAngles[i];
     const x = radius * cos(angle), y = radius * sin(angle);
-    const x0 = cos(angle + -spinnerAngle);
+    const leftOfCenter = cos(angle + -spinnerAngle) < 0;
 
     push();
-    textAlign(x0 < 0 ? RIGHT : LEFT, CENTER);
+    textAlign(leftOfCenter ? RIGHT : LEFT, CENTER);
     translate(x, y);
     rotate(angle);
 
     push();
-    if (x0 < 0) rotate(PI);
+    if (leftOfCenter) rotate(PI);
     if (!spinning && targetIndex == i) {
       fill('black');
       // textStyle(BOLD);
@@ -113,7 +119,7 @@ function draw() {
     text(label, 0, 0);
     pop();
 
-    if (struck[i]) {
+    if (visitedLabelIndices[i]) {
       strokeWeight(4);
       line(0, 0, textWidth(label), 0);
     }
@@ -123,9 +129,9 @@ function draw() {
 
 function startShuffle(lines) {
   labels = lines.map(s => s.trim()).filter(s => s);
-  angles = labels.map((_, i) => TWO_PI * i / labels.length);
-  shuffle(angles, true);
-  struck = new Array(labels.length).fill(false);
+  labelAngles = labels.map((_, i) => TWO_PI * i / labels.length);
+  shuffle(labelAngles, true);
+  visitedLabelIndices = new Array(labels.length).fill(false);
   targetIndex = -1;
   selectedLabels = [];
   spinning = false;
@@ -156,8 +162,8 @@ function executePendingMouseClicks() {
 }
 
 function nextSpin() {
-  if (targetIndex >= 0) struck[targetIndex] = true;
-  let remaining = struck.map((f, i) => f ? null : i).filter(i => i !== null);
+  if (targetIndex >= 0) visitedLabelIndices[targetIndex] = true;
+  let remaining = visitedLabelIndices.map((f, i) => f ? null : i).filter(i => i !== null);
   switch (remaining.length) {
     case 0:
       document.body.className = '';
@@ -168,7 +174,7 @@ function nextSpin() {
   }
   targetIndex = random(remaining);
   spinnerAngle %= TWO_PI;
-  targetAngle = angles[targetIndex] + floor(random(1, 5)) * TWO_PI;
+  targetAngle = labelAngles[targetIndex] + floor(random(1, 5)) * TWO_PI;
   spinning = true;
   loop();
 }
