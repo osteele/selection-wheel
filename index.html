@@ -4,19 +4,22 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Random Selection Spinner</title>
+    <title>Wheel of Selection</title>
 
     <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
-    <div id="instructions">
-        <div class="initial"></div>
-        <div class="in-progress">Click to select the next name.</div>
-        <div class="done">Click to enter a new list of names.</div>
+    <div id="header">
+        <h1>Wheel of Selection</h1>
+        <div id="instructions">
+            <div class="initial"></div>
+            <div class="in-progress">Click to select the next name.</div>
+            <div class="done">Click to enter a new list of names.</div>
+        </div>
     </div>
     <textarea id="input-lines" class="unless-canvas" rows="15" cols="60" name="text"
-     placeholder="Enter names to be shuffled, one per line. Leave this area empty in order to use a default set of generated names."></textarea>
+        placeholder="Enter names to be shuffled, one per line. Leave this area empty in order to use a default set of generated names."></textarea>
 </body>
 
 <script src="https://cdn.jsdelivr.net/npm/p5@1.0/lib/p5.min.js" crossorigin="anonymous"></script>

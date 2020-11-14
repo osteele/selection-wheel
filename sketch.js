@@ -10,7 +10,7 @@ let labelTextSize;
 
 function setup() {
   const header = document.getElementById('instructions');
-  createCanvas(windowWidth, windowHeight - header.offsetTop - header.offsetHeight);
+  createCanvas(windowWidth, windowHeight);
   // the following supports hot reload during development
   document.body.className = '';
 
