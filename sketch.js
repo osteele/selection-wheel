@@ -9,6 +9,11 @@ let queuedMouseClicks = 0;
 let spinning = false;
 let labelTextSize;
 let hues;
+let gameShowWheelSound;
+
+function preload() {
+  gameShowWheelSound = loadSound("assets/game-show-wheel.mp3");
+}
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -22,16 +27,16 @@ function setup() {
 
   const textArea = document.getElementById('input-lines');
   const testData = Array(5).fill().map((_, i) => `Team #${i + 1}`);
-  createButton('Shuffle')
+  createButton('Spin')
     .class('unless-canvas')
     .position(textArea.offsetLeft, textArea.offsetTop + textArea.offsetHeight + 10)
-    .mousePressed(() => startShuffle(
+    .mousePressed(() => createWheel(
       textArea.value.trim()
         ? textArea.value.split('\n')
         : testData));
 
   if (document.location.hash === '#test') {
-    startShuffle(testData);
+    createWheel(testData);
   }
 }
 
@@ -42,6 +47,7 @@ function draw() {
   if (abs(spinnerAngle - targetAngle) < 0.01) {
     spinning = false;
     targetIndex >= 0 && selectedLabels.push(labels[targetIndex])
+    gameShowWheelSound.stop();
     noLoop();
     executePendingMouseClicks();
   }
@@ -127,7 +133,7 @@ function draw() {
   });
 }
 
-function startShuffle(lines) {
+function createWheel(lines) {
   labels = lines.map(s => s.trim()).filter(s => s);
   labelAngles = labels.map((_, i) => TWO_PI * i / labels.length);
   shuffle(labelAngles, true);
@@ -139,7 +145,9 @@ function startShuffle(lines) {
 
   const maxRadius = min(width, height) / 2;
   labelTextSize = 200;
-  while (textSize(labelTextSize), 100 + max(labels.map(textWidth)) > maxRadius) labelTextSize *= 0.95;
+  while (textSize(labelTextSize), 100 + max(labels.map(textWidth)) > maxRadius) {
+    labelTextSize *= 0.95;
+  }
 
   document.body.className = 'canvas selecting';
   noLoop();
@@ -176,5 +184,6 @@ function nextSpin() {
   spinnerAngle %= TWO_PI;
   targetAngle = labelAngles[targetIndex] + floor(random(1, 5)) * TWO_PI;
   spinning = true;
+  gameShowWheelSound.play();
   loop();
 }
